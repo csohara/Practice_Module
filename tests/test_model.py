@@ -1,0 +1,1 @@
+from Thomas_Algorithm.T_Alg import thomas_algorithm 

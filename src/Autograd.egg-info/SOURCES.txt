@@ -1,0 +1,10 @@
+setup.py
+src/Autograd.egg-info/PKG-INFO
+src/Autograd.egg-info/SOURCES.txt
+src/Autograd.egg-info/dependency_links.txt
+src/Autograd.egg-info/requires.txt
+src/Autograd.egg-info/top_level.txt
+src/peds_model /T_Alg.py
+src/peds_model /__init__.py
+src/peds_model /alpha_layer.py
+tests/test_model.py
