@@ -2,6 +2,7 @@
 import torch 
 DTYPE = torch.float64 
 
+
 class AlphaLayer(torch.nn.Module):
     def __init__(self, f):
         super().__init__()
