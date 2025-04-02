@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 from peds_model.T_Alg import thomas_algorithm
-from peds_model.alpha_layer import AlphaLayer, tridiagonal_matrix
+from peds_model.alpha_layer import AlphaLayer, AlphaFunction
 
 DTYPE = torch.float64
 
@@ -22,7 +22,7 @@ u = model(alpha)
 def solve_explicit(alpha_np, f_np):
     alpha_t = torch.tensor(alpha_np, dtype=DTYPE)
     f_t = torch.tensor(f_np, dtype=DTYPE)
-    a, b, c = tridiagonal_matrix(alpha_t)
+    a, b, c = AlphaFunction.tridiagonal_matrix(alpha_t)
     return thomas_algorithm(a, b, c, f_t).numpy()
 
 u_manual = solve_explicit(alpha.detach().numpy(), f.detach().numpy())

@@ -5,19 +5,8 @@ DTYPE = torch.float64
 from peds_model.T_Alg import thomas_algorithm
 
 # Matrix Construction 
-def tridiagonal_matrix(alpha):
-    """
-    Constructs the tridiagonal matrix A(alpha) where:
-      a_j = alpha_j^2
-      b_j = 1 + alpha_j^3
-      c_j = alpha_{j+1}^2 + 2*alpha_{j+1}
-    """
-    alpha = alpha.to(DTYPE)
-    N = alpha.shape[0]
-    a = alpha[:-1] ** 2
-    b = 1 + alpha ** 3
-    c = alpha[1:] ** 2 + 2 * alpha[1:]
-    return a, b, c
+
+
 
 
 # Custom Autograd Function 
@@ -28,10 +17,25 @@ class AlphaFunction(torch.autograd.Function):
         Forward solve: u = A(alpha)^(-1) f
         """
         f = metadata["f"].to(DTYPE)
-        a, b, c = tridiagonal_matrix(input)
+        a, b, c = AlphaFunction.tridiagonal_matrix(input)
         u = thomas_algorithm(a, b, c, f)
         ctx.save_for_backward(input, a, b, c, u, f)
         return u
+    
+    @staticmethod
+    def tridiagonal_matrix(alpha):
+        """
+        Constructs the tridiagonal matrix A(alpha) where:
+         a_j = alpha_j^2
+        b_j = 1 + alpha_j^3
+        c_j = alpha_{j+1}^2 + 2*alpha_{j+1}
+        """
+        alpha = alpha.to(DTYPE)
+        N = alpha.shape[0]
+        a = alpha[:-1] ** 2
+        b = 1 + alpha ** 3
+        c = alpha[1:] ** 2 + 2 * alpha[1:]
+        return a, b, c
 
     @staticmethod
     def backward(ctx, grad_output):
