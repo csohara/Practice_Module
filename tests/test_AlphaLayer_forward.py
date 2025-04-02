@@ -13,7 +13,7 @@ def test_alpha_layer_forward_pass():
     alpha = torch.tensor(rng.normal(size=n), dtype=DTYPE)
     f = torch.tensor(rng.normal(size=n), dtype=DTYPE)
 
-    # Run AlphaLayer
+    # Run AlphaLayer]
     model = AlphaLayer(f)
     u = model(alpha)
 
@@ -22,6 +22,6 @@ def test_alpha_layer_forward_pass():
     expected_u = thomas_algorithm(a, b, c, f)
 
     # Check match
-    assert torch.allclose(u, expected_u, atol=1e-8), (
-        f"AlphaLayer forward failed.\nExpected: {expected_u}\nGot: {u}"
+    assert torch.equal(u, expected_u), (
+    f"AlphaLayer forward failed.\nExpected: {expected_u}\nGot: {u}"
     )
