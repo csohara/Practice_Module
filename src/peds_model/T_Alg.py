@@ -2,7 +2,7 @@
 import torch 
 DTYPE = torch.float64 
 def thomas_algorithm(a, b, c, f):
-    B, N = b.shape[0]
+    B, N = b.shape
     b, f = b.clone(), f.clone()
 
     u = torch.zeros_like(f)
