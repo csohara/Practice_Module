@@ -26,9 +26,11 @@ u = model(alpha)
 def solve_explicit_batch(alpha_np, f_np):
     results = []
     for alpha_i in alpha_np:
-        a, b, c = AlphaFunction.tridiagonal_matrix(torch.tensor(alpha_i, dtype=DTYPE))
-        u_i = thomas_algorithm(a, b, c, torch.tensor(f_np, dtype=DTYPE))
-        results.append(u_i.detach().numpy())
+        alpha_tensor = torch.tensor(alpha_i, dtype=DTYPE).unsqueeze(0)  # (1, N)
+        a, b, c = AlphaFunction.tridiagonal_matrix(alpha_tensor)  # already shape (1, N) or (1, N-1)
+        f_tensor = torch.tensor(f_np, dtype=DTYPE).unsqueeze(0)  # (1, N)
+        u_i = thomas_algorithm(a, b, c, f_tensor)  # output shape (1, N)
+        results.append(u_i.squeeze(0).detach().numpy())  # (N,)
     return np.stack(results)
 
 u_manual = solve_explicit_batch(alpha.detach().numpy(), f.detach().numpy())
