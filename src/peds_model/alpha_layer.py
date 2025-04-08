@@ -53,27 +53,35 @@ class AlphaFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_output):
         """
-        Adjoint gradient: grad_input[j] = - w^T (dA/dalpha_j * u)
-        where A^T w = grad_output, solved via Thomas algorithm.
+        Batched adjoint gradient:
+        grad_input[b, j] = - w_b^T (dA_b/dalpha_bj * u_b)
+        where A_b^T w_b = grad_output_b, solved via Thomas algorithm.
         """
-        raise NotImplementedError("Backward pass not implemented yet.")
-        #input, a, b, c, u, f = ctx.saved_tensors
-        #N = input.shape[0]
-        #w = thomas_algorithm(c, b, a, grad_output.to(DTYPE))
-        #grad_input = torch.zeros_like(input, dtype=DTYPE)
+        input, a, b, c, u, f = ctx.saved_tensors
+        B, N = input.shape
 
-        #for j in range(N):
-            #dA_dalpha_u_j = torch.zeros(N, dtype=DTYPE)
+        # Solve Aᵀ w = grad_output for each batch
+        w = thomas_algorithm(c, b, a, grad_output.to(DTYPE))  # (B, N)
 
-            #if j < N - 1:
-                #dA_dalpha_u_j[j + 1] += 2 * input[j] * u[j]
-            #dA_dalpha_u_j[j] += 3 * input[j]**2 * u[j]
-            #if j > 0:
-                #dA_dalpha_u_j[j - 1] += (2 * input[j] + 2) * u[j]
+        grad_input = torch.zeros_like(input, dtype=DTYPE)  # (B, N)
 
-            #grad_input[j] = - torch.dot(w, dA_dalpha_u_j)
+        for batch in range(B):
+            alpha_b = input[batch]
+            u_b = u[batch]
+            w_b = w[batch]
 
-        #return None, grad_input
+            for j in range(N):
+                dA_dalpha_u_j = torch.zeros(N, dtype=DTYPE)
+
+                if j < N - 1:
+                    dA_dalpha_u_j[j + 1] += 2 * alpha_b[j] * u_b[j]
+                dA_dalpha_u_j[j] += 3 * alpha_b[j]**2 * u_b[j]
+                if j > 0:
+                    dA_dalpha_u_j[j - 1] += (2 * alpha_b[j] + 2) * u_b[j]
+
+                grad_input[batch, j] = - torch.dot(w_b, dA_dalpha_u_j)
+
+        return None, grad_input
     
 class AlphaLayer(torch.nn.Module):
     def __init__(self, f):
