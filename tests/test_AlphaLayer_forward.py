@@ -15,11 +15,12 @@ def test_alpha_layer_forward_pass():
 
     # Run AlphaLayer]
     model = AlphaLayer(f)
-    u = model(alpha)
+    u = model(alpha.unsqueeze(0))[0] # make correct shape
 
     # Manual solve
     a, b, c = AlphaFunction.tridiagonal_matrix(alpha)
-    expected_u = thomas_algorithm(a, b, c, f)
+    expected_u = thomas_algorithm(a, b, c, f.unsqueeze(0))[0] # make correct shape 
+
 
     # Check match
     assert torch.equal(u, expected_u), (
