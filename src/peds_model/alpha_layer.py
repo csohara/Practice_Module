@@ -7,8 +7,6 @@ from peds_model.T_Alg import thomas_algorithm
 # Matrix Construction 
 
 
-
-
 # Custom Autograd Function 
 class AlphaFunction(torch.autograd.Function):
     @staticmethod
