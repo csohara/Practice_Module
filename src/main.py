@@ -4,6 +4,7 @@ import numpy as np
 
 from peds_model.T_Alg import thomas_algorithm
 from peds_model.alpha_layer import AlphaLayer, AlphaFunction
+from peds_model.Alpha_Dataset import alpha_step_function
 
 DTYPE = torch.float64
 
@@ -23,15 +24,16 @@ model = AlphaLayer(f)
 u = model(alpha)
 
 # Manual solve for comparison
+# looping over each alpha _i (each tridigonal matrix)
 def solve_explicit_batch(alpha_np, f_np):
     results = []
     for alpha_i in alpha_np:
-        alpha_tensor = torch.tensor(alpha_i, dtype=DTYPE).unsqueeze(0)  # (1, N)
-        a, b, c = AlphaFunction.tridiagonal_matrix(alpha_tensor)  # already shape (1, N) or (1, N-1)
-        f_tensor = torch.tensor(f_np, dtype=DTYPE).unsqueeze(0)  # (1, N)
+        alpha_tensor = torch.tensor(alpha_i, dtype=DTYPE).unsqueeze(0)  # changes to tensor shape (1, N)
+        a, b, c = AlphaFunction.tridiagonal_matrix(alpha_tensor)  # uses shape (1, N) or (1, N-1)
+        f_tensor = torch.tensor(f_np, dtype=DTYPE).unsqueeze(0)  # convert to (1, N)
         u_i = thomas_algorithm(a, b, c, f_tensor)  # output shape (1, N)
         results.append(u_i.squeeze(0).detach().numpy())  # (N,)
-    return np.stack(results)
+    return np.stack(results) # create final array 
 
 u_manual = solve_explicit_batch(alpha.detach().numpy(), f.detach().numpy())
 
