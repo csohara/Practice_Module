@@ -27,6 +27,8 @@ def test_alpha_layer_batched_backward_pass():
     f_np = f.detach().numpy()
     grad_fd = np.zeros_like(alpha_np)  # shape (B, N)
 
+
+    # Solve for manual gradient calculation 
     def solve(alpha_arr, f_arr):
         alpha_t = torch.tensor(alpha_arr, dtype=DTYPE)
         f_t = torch.tensor(f_arr, dtype=DTYPE)
@@ -37,11 +39,11 @@ def test_alpha_layer_batched_backward_pass():
             f_t = f_t.unsqueeze(0)
 
         a, b, c = AlphaFunction.tridiagonal_matrix(alpha_t)
-        return thomas_algorithm(a, b, c, f_t).squeeze(0).numpy()
+        return thomas_algorithm(a, b, c, f_t).squeeze(0).numpy() # # Remove fake batch dim (if added)
 
     # Loop over batch and each alpha index
     for b in range(B):
-        u_base = solve(alpha_np[b], f_np[b])
+        u_base = solve(alpha_np[b], f_np[b]) # Solve system for original alpha
         for j in range(N):
             alpha_plus = alpha_np[b].copy()
             alpha_plus[j] += epsilon
