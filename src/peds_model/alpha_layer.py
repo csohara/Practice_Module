@@ -43,9 +43,10 @@ class AlphaFunction(torch.autograd.Function):
 
 
         #N = alpha.shape[0]
-        a = alpha[:, :-1] ** 2 # All rows, drops last column (B, N-1)
-        b = 1 + alpha ** 3
-        c = alpha[:, 1:] ** 2 + 2 * alpha[:, 1:] # drops first column (B, N-1)
+        a = alpha[:, :-1] ** 2
+        b = 5 + alpha ** 3
+        b = torch.clamp(b, min=1e-2)
+        c = alpha[:, 1:] ** 2 + 2 * alpha[:, 1:]
         return a, b, c
 
     @staticmethod
