@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-
+import matplotlib.pyplot as plt
 def alpha_step_function(x, fibre_regions, alpha_0=0.0, alpha_1=1.0):
     """
     Create a step-function-like alpha field with fibre regions set to alpha_1,
@@ -75,3 +75,24 @@ class AlphaFieldDataset:
 
     def __len__(self):
         return self.n_samples
+    
+    
+
+#For plotting 
+#dataset = AlphaFieldDataset(n_samples=1, L=1000, n_fibres=3, sigma=0.02)
+#alpha0, regions0 = dataset[0]  # torch.Tensor, list of (start, end)
+#x = dataset.x  # the spatial grid used to create alpha
+
+# Plot the alpha field
+#plt.figure(figsize=(10, 3))
+#plt.plot(x, alpha0.numpy(), label="alpha(x)")
+#for start, end in regions0:
+ #   plt.axvspan(start, end, color='red', alpha=0.2, label='Fibre region')
+
+#plt.title("High-resolution Alpha Field with Fibres")
+#plt.xlabel("x")
+#plt.ylabel("alpha(x)")
+#plt.grid(True)
+#plt.legend(loc="upper right")
+#plt.tight_layout()
+#plt.show()
