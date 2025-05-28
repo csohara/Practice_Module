@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 from torch.utils.data import random_split
 
+import matplotlib.pyplot as plt
 
 # Dataset Class 
 from peds_model.Dataset_Class import AlphaQoIDataset 
@@ -13,6 +14,9 @@ from peds_model.T_Alg import thomas_algorithm
 from peds_model.alpha_layer import AlphaLayer, AlphaFunction
 # Quantity of Interst 
 from peds_model.QoI import QuantityOfInterest
+
+from measure_error import compute_relative_l2_error
+
 
 
 
@@ -64,50 +68,76 @@ criterion = torch.nn.MSELoss()
 
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-num_epochs = 3
+num_epochs = 20
 
 train_losses = []
 val_losses = []
+rel_errors = []
 
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
 
     for alpha_batch, qoi_batch in train_loader:
-        alpha_batch = alpha_batch.float()  # Ensure alpha_batch is float
-        qoi_batch = qoi_batch.float()      # Ensure qoi_batch is float
-        
+        alpha_batch = alpha_batch.float()
+        qoi_batch = qoi_batch.float()
 
         optimizer.zero_grad()
-        
         qoi_pred = model(alpha_batch)
-        
-
-        loss = criterion(qoi_pred, qoi_batch)  # Should work now
-
+        loss = criterion(qoi_pred, qoi_batch)
         loss.backward()
         optimizer.step()
+
         running_loss += loss.item()
 
-    print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader):.4f}")
+    avg_train_loss = running_loss / len(train_loader)
+    train_losses.append(avg_train_loss)
+
+    # 🔁 Validation after each epoch
+    model.eval()
+    with torch.no_grad():
+        val_loss = 0.0
+        for alpha_batch, qoi_batch in val_loader:
+            alpha_batch = alpha_batch.float()
+            qoi_batch = qoi_batch.float()
+            qoi_pred = model(alpha_batch)
+            loss = criterion(qoi_pred, qoi_batch)
+            val_loss += loss.item()
+        avg_val_loss = val_loss / len(val_loader)
+        val_losses.append(avg_val_loss)
+
+    # 🔁 Compute relative error after each epoch
+    rel_error = compute_relative_l2_error(model, test_loader)
+    rel_errors.append(rel_error)
+
+    # ✅ Print all metrics
+    print(f"Epoch {epoch+1}, Train Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}, Relative L2 Error: {rel_error:.6f}")
 
 
-# Validation loop 
+torch.save(model.state_dict(), "trained_qoi_model.pt")
 
-model.eval()
-with torch.no_grad():
-    running_val_loss = 0.0
-    val_loss = 0.0
-    for alpha_batch, qoi_batch in val_loader:
-        qoi_pred = model(alpha_batch)
-        running_val_loss = criterion(qoi_pred, qoi_batch)
-        val_loss += loss.item()
+# Plot training loss and relative L2 error
+epochs = range(1, num_epochs + 1)
 
-    avg_val_loss = val_loss / len(val_loader)
-    print(f"Validation Loss: {avg_val_loss:.4f}")
+plt.figure(figsize=(12, 5))
 
+# 📉 Plot Training Loss
+plt.subplot(1, 2, 1)
+plt.plot(epochs, train_losses, label="Train Loss", marker='o')
+plt.xlabel("Epoch")
+plt.ylabel("MSE Loss")
+plt.title("Training Loss per Epoch")
+plt.grid(True)
+plt.legend()
 
-if epoch % 100 == 0:
-    print(f"Epoch {epoch+1}, Train Loss: {avg_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
+# 📉 Plot Relative L2 Error
+plt.subplot(1, 2, 2)
+plt.plot(epochs, rel_errors, label="Relative L2 Error", color='orange', marker='o')
+plt.xlabel("Epoch")
+plt.ylabel("Relative L2 Error")
+plt.title("Relative L2 Error per Epoch")
+plt.grid(True)
+plt.legend()
 
-torch.save(model.state_dict(), "trained_alpha_model.pt")
+plt.tight_layout()
+plt.show()
