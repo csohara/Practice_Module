@@ -1,17 +1,18 @@
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from peds_model.Dataset_Class import AlphaQoIDataset
-from training_model import AlphaCNN  
+from main_hybrid import HybridAlphaModel  # Make sure this points to the hybrid model file
 
-# Create the dataset and DataLoader
+# Create dataset and split
 dataset = AlphaQoIDataset(n_samples=1000, L=1000, n_fibres=5, sigma=0.02, alpha_0=0.0, alpha_1=1.0)
-_, _, test_data = torch.utils.data.random_split(dataset, [800, 100, 100])  # 80/10/10 split
+_, _, test_data = random_split(dataset, [800, 100, 100])
 test_loader = DataLoader(test_data, batch_size=16)
 
-# Recreate the model and load weights
-model = AlphaCNN(input_length=1000, output_size=3)
-state_dict = torch.load("trained_alpha_model.pt", weights_only=True)
-model.load_state_dict(state_dict)
+# Instantiate model
+model = HybridAlphaModel(input_length=1000, downsample_factor=2, qoi_points=[0.25, 0.5, 0.75])
+
+# Load trained weights
+model.load_state_dict(torch.load("trained_hybrid_model.pt"))
 
 model.eval()
 
@@ -32,3 +33,7 @@ with torch.no_grad():
 
 avg_test_loss = test_loss / num_samples
 print(f"Test Loss: {avg_test_loss:.4f}")
+
+# Print final learned weight
+final_w = model.get_weight()
+print(f"Final learned weight (w) during evaluation: {final_w:.4f}")
