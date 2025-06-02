@@ -1,6 +1,6 @@
 
 import torch 
-DTYPE = torch.float64 
+DTYPE = torch.float32
 
 from peds_model.T_Alg import thomas_algorithm
 
