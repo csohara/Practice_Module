@@ -37,6 +37,6 @@ dataset = AlphaFieldDataset(n_samples=1, L=1000, n_fibres=3, sigma=0.015, alpha_
 alpha, _ = dataset[0]
 alpha_down = downsampler(alpha)  # shape [501]
 
-print("Original alpha shape:", alpha.shape)
-print("Downsampled alpha shape:", alpha_down.shape)
-print("First 10 downsampled values:", alpha_down[:10].tolist())
+#print("Original alpha shape:", alpha.shape)
+#print("Downsampled alpha shape:", alpha_down.shape)
+#print("First 10 downsampled values:", alpha_down[:10].tolist())
