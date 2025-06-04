@@ -34,12 +34,12 @@ class AlphaQoIDataset(Dataset):
 
 
 # Create the dataset
-dataset = AlphaQoIDataset(n_samples=5, n_fibres=3, sigma=0.02, alpha_1=1.0)
+#dataset = AlphaQoIDataset(n_samples=5, n_fibres=20, sigma=0.02, alpha_1=1.0)
 
 # Collect and print a few (alpha, QoI) pairs
-for i in range(len(dataset)):
-    alpha, qoi = dataset[i]
-    print(f"\nSample {i}")
-    print("  alpha (first 5 values):", alpha[:5].numpy())
-    print("  QoI:", qoi.numpy())
+#for i in range(len(dataset)):
+    #alpha, qoi = dataset[i]
+    #print(f"\nSample {i}")
+    #print("  alpha (first 5 values):", alpha[:5].numpy())
+    #ßprint("  QoI:", qoi.numpy())
 
