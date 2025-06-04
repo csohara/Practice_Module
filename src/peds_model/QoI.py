@@ -5,7 +5,7 @@ class QuantityOfInterest(torch.nn.Module):
 
         super().__init__()
         self.sample_points = sample_points # where we want to sample 
-        self.x_grid = torch.tensor(x_grid, dtype=torch.float64) # converts spatial grid into pytorch tensor 
+        self.x_grid = torch.as_tensor(x_grid, dtype=torch.float32) # converts spatial grid into pytorch tensor 
         self.indices = self._compute_indices()
 
     def _compute_indices(self):
@@ -16,4 +16,4 @@ class QuantityOfInterest(torch.nn.Module):
         return indices
 
     def forward(self, u):
-        return u[self.indices]
+        return u[...,self.indices]
