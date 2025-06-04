@@ -44,12 +44,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class AlphaCNN(nn.Module):
-    def __init__(self, input_length=1000, output_size=16):  # <-- Updated output size
+    def __init__(self, input_length=1000, output_size=16):  
         super().__init__()
 
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=8, kernel_size=5, padding=2)
         self.pool = nn.AdaptiveAvgPool1d(output_size=50)
-        self.fc = nn.Linear(8 * 50, output_size)  # Now maps to 16 QoI outputs
+        self.fc = nn.Linear(8 * 50, output_size)  # maps to 16 QoI outputs
 
     def forward(self, x):
         x = x.unsqueeze(1)          # [B, 1, L]
